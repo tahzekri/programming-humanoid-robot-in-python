@@ -9,7 +9,7 @@
 
 '''
 
-
+import numpy as np
 from angle_interpolation import AngleInterpolationAgent
 from keyframes import hello
 
@@ -31,6 +31,15 @@ class PostureRecognitionAgent(AngleInterpolationAgent):
     def recognize_posture(self, perception):
         posture = 'unknown'
         # YOUR CODE HERE
+        data = []
+        for s in self.joints:
+            data.append(perception.joint[s])
+        for f in perception.imu:
+            data.append(f)
+        all_data = [data]
+        predicted = self.posture_classifier.predict(all_data)
+        posture = np.array(self.classes)[predicted[0]]
+        return posture
 
         return posture
 
