@@ -5,7 +5,7 @@
 
 '''
 
-
+from keyframes import *
 from recognize_posture import PostureRecognitionAgent
 
 
@@ -17,6 +17,13 @@ class StandingUpAgent(PostureRecognitionAgent):
     def standing_up(self):
         posture = self.posture
         # YOUR CODE HERE
+        if posture=="Headback" or posture=="Back" or posture=="Right":
+            self.keyframes = rightBellyToStand()
+        elif posture=="Stand":
+            self.keyframes=hello()
+        elif posture=="Frog" or posture=="Belly" or posture=="Left":
+            self.keyframes = leftBackToStand()
+        #######
 
 
 class TestStandingUpAgent(StandingUpAgent):
