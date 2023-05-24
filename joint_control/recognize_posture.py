@@ -39,7 +39,6 @@ class PostureRecognitionAgent(AngleInterpolationAgent):
         all_data = [data]
         predicted = self.posture_classifier.predict(all_data)
         posture = np.array(self.classes)[predicted[0]]
-        return posture
 
         return posture
 
