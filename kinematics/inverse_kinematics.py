@@ -12,6 +12,7 @@
 
 from forward_kinematics import ForwardKinematicsAgent
 from numpy.matlib import identity
+import numpy as np
 
 
 class InverseKinematicsAgent(ForwardKinematicsAgent):
@@ -24,13 +25,59 @@ class InverseKinematicsAgent(ForwardKinematicsAgent):
         '''
         joint_angles = []
         # YOUR CODE HERE
+        
+        
+        for chain in self.chains:
+            for joint in self.chains[chain]:
+                joint_angles[joint] = self.perception.joint[joint]
+
+        needed = np.array([self.from_trans(transform)])
+        M_transposed = needed.T
+
+        for i in range(3000):
+            self.forward_kinematics(joint_angles)
+
+            lis = [0] * len(self.chains[effector_name])
+            # fill list with transform values
+            for i, name in enumerate(self.chains[effector_name]):
+                lis[i] = self.transforms[name]
+
+            last_elem = lis[-1]
+            onelist = np.array([self.from_trans(last_elem)]) 
+            defir = M_transposed - onelist
+
+            T = np.array([self.from_trans(i) for i in T[0:len(self.chains[effector_name])]])
+            defir2 = (onelist - T)
+            defir2.T[-1, :] = 1
+
+            lambda_ = 0.001
+            d_theta = lambda_ * np.dot(np.dot(defir2, np.linalg.pinv(np.dot(defir2.T, defir2))), defir.T)
+
+            for i, name in enumerate(self.chains[effector_name]):
+                joint_angles[name] += np.asarray(d_theta.T)[0][i]
+
+            if np.linalg.norm(d_theta) < 1e-4:
+                break
+        
+        
         return joint_angles
 
     def set_transforms(self, effector_name, transform):
         '''solve the inverse kinematics and control joints use the results
         '''
         # YOUR CODE HERE
-        self.keyframes = ([], [], [])  # the result joint angles have to fill in
+        angles = self.inverse_kinematics(effector_name,transform)
+        names = []
+        keys = []
+        times = []
+        
+        for name in self.chains[effector_name]:
+            if name == 'RWristYaw' or name == 'LWristYaw':
+                continue
+            names.append(name)
+            keys.append([[self.perception.joint[name], [3, 0, 0], [3, 0, 0]], [angles[name], [3, 0, 0], [3, 0, 0]]])
+            times.append([2, 5])
+        self.keyframes = (names, times, keys)
 
 if __name__ == '__main__':
     agent = InverseKinematicsAgent()
