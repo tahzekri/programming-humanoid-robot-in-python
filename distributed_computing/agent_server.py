@@ -63,6 +63,7 @@ class ServerAgent(InverseKinematicsAgent):
         '''
         # YOUR CODE HERE
         self.target_joints[joint_name] = angle
+        return True
 
     def get_posture(self):
         '''return current posture of robot'''
@@ -101,6 +102,7 @@ class ServerAgent(InverseKinematicsAgent):
         '''
         # YOUR CODE HERE
         self.transforms[effector_name] = transform
+        return True
 
 if __name__ == '__main__':
     agent = ServerAgent()
